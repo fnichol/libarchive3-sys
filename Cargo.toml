@@ -7,7 +7,7 @@ repository = "https://github.com/reset/libarchive-rust"
 build = "build.rs"
 
 [dependencies]
-libc = "*"
+libc = ">= 0.2.0"
 
 [build-dependencies]
 pkg-config = "*"
