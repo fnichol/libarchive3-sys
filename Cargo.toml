@@ -1,9 +1,9 @@
 [package]
 name = "libarchive3-sys"
 version = "0.1.0"
-authors = ["Jamie Winsor <jamie@vialstudios.com>"]
-license = "MIT"
-repository = "https://github.com/reset/libarchive-rust"
+authors = ["Jamie Winsor <reset@chef.io>"]
+license = "Apache-2.0"
+repository = "https://github.com/chef/libarchive-rust"
 build = "build.rs"
 
 [dependencies]
