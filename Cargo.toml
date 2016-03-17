@@ -4,10 +4,12 @@ version = "0.1.0"
 authors = ["Jamie Winsor <reset@chef.io>"]
 license = "Apache-2.0"
 repository = "https://github.com/chef/libarchive-rust"
+description = "Raw bindings for libarchive"
+keywords = ["libarchive", "archive", "tar", "zip"]
 build = "build.rs"
 
 [dependencies]
 libc = ">= 0.2.0"
 
 [build-dependencies]
-pkg-config = "*"
+pkg-config = "0.3"
