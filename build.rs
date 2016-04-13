@@ -9,6 +9,11 @@ fn main() {
     if lib_dir.is_some() && include_dir.is_some() {
         println!("cargo:rustc-link-search=native={}", lib_dir.unwrap());
         println!("cargo:include={}", include_dir.unwrap());
+        let mode = match env::var_os("LIBARCHIVE_STATIC") {
+            Some(_) => "static",
+            None => "dylib",
+        };
+        println!("cargo:rustc-flags=-l {0}=archive", mode);
     } else {
         match pkg_config::find_library("libarchive") {
             Ok(_) => (),
