@@ -40,6 +40,9 @@ pub enum Struct_archive_entry { }
 pub enum Struct_archive_acl { }
 pub enum Struct_archive_entry_linkresolver { }
 
+#[cfg(windows)]
+pub type mode_t = u16;
+
 pub type archive_read_callback = unsafe extern "C" fn(arg1: *mut Struct_archive,
                                                       _client_data: *mut c_void,
                                                       _buffer: *mut *const c_void)
