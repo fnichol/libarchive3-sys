@@ -1,6 +1,6 @@
 [package]
 name = "libarchive3-sys"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Jamie Winsor <reset@chef.io>"]
 license = "Apache-2.0"
 repository = "https://github.com/chef/libarchive3-sys"
