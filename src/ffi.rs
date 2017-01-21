@@ -71,11 +71,19 @@ pub type archive_switch_callback = unsafe extern "C" fn(arg1: *mut Struct_archiv
                                                         _client_data1: *mut c_void,
                                                         _client_data2: *mut c_void)
                                                         -> c_int;
+pub type archive_passphrase_callback = unsafe extern "C" fn(arg1: *mut Struct_archive,
+                                                            _client_data: *mut c_void)
+                                                            -> *const c_char;
 
 #[link(name = "archive")]
 extern "C" {
     pub fn archive_version_number() -> c_int;
     pub fn archive_version_string() -> *const c_char;
+    pub fn archive_version_details() -> *const c_char;
+    pub fn archive_zlib_version() -> *const c_char;
+    pub fn archive_liblzma_version() -> *const c_char;
+    pub fn archive_bzlib_version() -> *const c_char;
+    pub fn archive_liblz4_version() -> *const c_char;
     pub fn archive_read_new() -> *mut Struct_archive;
     pub fn archive_read_support_compression_all(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_compression_bzip2(arg1: *mut Struct_archive) -> c_int;
@@ -101,6 +109,7 @@ extern "C" {
     pub fn archive_read_support_filter_gzip(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_filter_grzip(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_filter_lrzip(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_read_support_filter_lz4(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_filter_lzip(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_filter_lzma(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_filter_lzop(arg1: *mut Struct_archive) -> c_int;
@@ -130,8 +139,11 @@ extern "C" {
     pub fn archive_read_support_format_rar(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_format_raw(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_format_tar(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_read_support_format_warc(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_format_xar(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_support_format_zip(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_read_support_format_zip_streamable(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_read_support_format_zip_seekable(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_set_format(arg1: *mut Struct_archive, arg2: c_int) -> c_int;
     pub fn archive_read_append_filter(arg1: *mut Struct_archive, arg2: c_int) -> c_int;
     pub fn archive_read_append_filter_program(arg1: *mut Struct_archive,
@@ -143,41 +155,23 @@ extern "C" {
                                                         arg4: size_t)
                                                         -> c_int;
     pub fn archive_read_set_open_callback(arg1: *mut Struct_archive,
-                                          arg2:
-                                              *mut ::std::option::Option<extern "C" fn()
-                                                                             ->
-                                                                                 c_int>)
-     -> c_int;
+                                          arg2: ::std::option::Option<archive_open_callback>)
+                                          -> c_int;
     pub fn archive_read_set_read_callback(arg1: *mut Struct_archive,
-                                          arg2:
-                                              *mut ::std::option::Option<extern "C" fn()
-                                                                             ->
-                                                                                 ssize_t>)
-     -> c_int;
+                                          arg2: ::std::option::Option<archive_read_callback>)
+                                          -> c_int;
     pub fn archive_read_set_seek_callback(arg1: *mut Struct_archive,
-                                          arg2:
-                                              *mut ::std::option::Option<extern "C" fn()
-                                                                             ->
-                                                                                 int64_t>)
-     -> c_int;
+                                          arg2: ::std::option::Option<archive_seek_callback>)
+                                          -> c_int;
     pub fn archive_read_set_skip_callback(arg1: *mut Struct_archive,
-                                          arg2:
-                                              *mut ::std::option::Option<extern "C" fn()
-                                                                             ->
-                                                                                 int64_t>)
-     -> c_int;
+                                          arg2: ::std::option::Option<archive_skip_callback>)
+                                          -> c_int;
     pub fn archive_read_set_close_callback(arg1: *mut Struct_archive,
-                                           arg2:
-                                               *mut ::std::option::Option<extern "C" fn()
-                                                                              ->
-                                                                                  c_int>)
-     -> c_int;
+                                           arg2: ::std::option::Option<archive_close_callback>)
+                                           -> c_int;
     pub fn archive_read_set_switch_callback(arg1: *mut Struct_archive,
-                                            arg2:
-                                                *mut ::std::option::Option<extern "C" fn()
-                                                                               ->
-                                                                                   c_int>)
-     -> c_int;
+                                            arg2: ::std::option::Option<archive_switch_callback>)
+                                            -> c_int;
     pub fn archive_read_set_callback_data(arg1: *mut Struct_archive, arg2: *mut c_void) -> c_int;
     pub fn archive_read_set_callback_data2(arg1: *mut Struct_archive,
                                            arg2: *mut c_void,
@@ -202,10 +196,10 @@ extern "C" {
                              -> c_int;
     pub fn archive_read_open2(arg1: *mut Struct_archive,
                               _client_data: *mut c_void,
-                              arg2: *mut ::std::option::Option<extern "C" fn() -> c_int>,
-                              arg3: *mut ::std::option::Option<extern "C" fn() -> ssize_t>,
-                              arg4: *mut ::std::option::Option<extern "C" fn() -> int64_t>,
-                              arg5: *mut ::std::option::Option<extern "C" fn() -> c_int>)
+                              arg2: ::std::option::Option<archive_open_callback>,
+                              arg3: ::std::option::Option<archive_read_callback>,
+                              arg4: ::std::option::Option<archive_skip_callback>,
+                              arg5: ::std::option::Option<archive_close_callback>)
                               -> c_int;
     pub fn archive_read_open_filename(arg1: *mut Struct_archive,
                                       _filename: *const c_char,
@@ -224,11 +218,11 @@ extern "C" {
                                   _block_size: size_t)
                                   -> c_int;
     pub fn archive_read_open_memory(arg1: *mut Struct_archive,
-                                    buff: *mut c_void,
+                                    buff: *const c_void,
                                     size: size_t)
                                     -> c_int;
     pub fn archive_read_open_memory2(a: *mut Struct_archive,
-                                     buff: *mut c_void,
+                                     buff: *const c_void,
                                      size: size_t,
                                      read_size: size_t)
                                      -> c_int;
@@ -244,6 +238,8 @@ extern "C" {
                                      arg2: *mut Struct_archive_entry)
                                      -> c_int;
     pub fn archive_read_header_position(arg1: *mut Struct_archive) -> int64_t;
+    pub fn archive_read_has_encrypted_entries(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_read_format_capabilities(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_read_data(arg1: *mut Struct_archive,
                              arg2: *mut c_void,
                              arg3: size_t)
@@ -272,6 +268,13 @@ extern "C" {
                                    v: *const c_char)
                                    -> c_int;
     pub fn archive_read_set_options(_a: *mut Struct_archive, opts: *const c_char) -> c_int;
+    pub fn archive_read_add_passphrase(arg1: *mut Struct_archive,
+                                       arg2: *const c_char)
+                                       -> c_int;
+    pub fn archive_read_set_passphrase_callback(arg1: *mut Struct_archive,
+                                                client_data: *mut c_void,
+                                                arg2: ::std::option::Option<archive_passphrase_callback>)
+                                                -> c_int;
     pub fn archive_read_extract(arg1: *mut Struct_archive,
                                 arg2: *mut Struct_archive_entry,
                                 flags: c_int)
@@ -330,6 +333,7 @@ extern "C" {
     pub fn archive_write_add_filter_grzip(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_add_filter_gzip(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_add_filter_lrzip(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_write_add_filter_lz4(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_add_filter_lzip(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_add_filter_lzma(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_add_filter_lzop(arg1: *mut Struct_archive) -> c_int;
@@ -354,19 +358,28 @@ extern "C" {
     pub fn archive_write_set_format_mtree_classic(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_pax(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_pax_restricted(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_write_set_format_raw(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_shar(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_shar_dump(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_ustar(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_v7tar(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_write_set_format_warc(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_xar(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_set_format_zip(arg1: *mut Struct_archive) -> c_int;
+    pub fn archive_write_set_format_filter_by_ext(a: *mut Struct_archive,
+                                                  filename: *const c_char)
+                                                  -> c_int;
+    pub fn archive_write_set_format_filter_by_ext_def(a: *mut Struct_archive,
+                                                      filename: *const c_char,
+                                                      def_ext: *const c_char)
+                                                      -> c_int;
     pub fn archive_write_zip_set_compression_deflate(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_zip_set_compression_store(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_write_open(arg1: *mut Struct_archive,
                               arg2: *mut c_void,
-                              arg3: *mut ::std::option::Option<extern "C" fn() -> c_int>,
-                              arg4: *mut ::std::option::Option<extern "C" fn() -> ssize_t>,
-                              arg5: *mut ::std::option::Option<extern "C" fn() -> c_int>)
+                              arg3: ::std::option::Option<archive_open_callback>,
+                              arg4: ::std::option::Option<archive_write_callback>,
+                              arg5: ::std::option::Option<archive_close_callback>)
                               -> c_int;
     pub fn archive_write_open_fd(arg1: *mut Struct_archive, _fd: c_int) -> c_int;
     pub fn archive_write_open_filename(arg1: *mut Struct_archive, _file: *const c_char) -> c_int;
@@ -413,6 +426,11 @@ extern "C" {
                                     v: *const c_char)
                                     -> c_int;
     pub fn archive_write_set_options(_a: *mut Struct_archive, opts: *const c_char) -> c_int;
+    pub fn archive_write_set_passphrase(_a: *mut Struct_archive, p: *const c_char) -> c_int;
+    pub fn archive_write_set_passphrase_callback(arg1: *mut Struct_archive,
+                                                 client_data: *mut c_void,
+                                                 arg2: ::std::option::Option<archive_passphrase_callback>)
+                                                 -> c_int;
     pub fn archive_write_disk_new() -> *mut Struct_archive;
     pub fn archive_write_disk_set_skip_file(arg1: *mut Struct_archive,
                                             arg2: int64_t,
@@ -540,6 +558,7 @@ extern "C" {
                                                           _client_data:
                                                               *mut c_void)
      -> c_int;
+    pub fn archive_free(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_filter_count(arg1: *mut Struct_archive) -> c_int;
     pub fn archive_filter_bytes(arg1: *mut Struct_archive, arg2: c_int) -> int64_t;
     pub fn archive_filter_code(arg1: *mut Struct_archive, arg2: c_int) -> c_int;
@@ -636,6 +655,7 @@ extern "C" {
     pub fn archive_match_include_uname_w(arg1: *mut Struct_archive, arg2: *const wchar_t) -> c_int;
     pub fn archive_match_include_gname(arg1: *mut Struct_archive, arg2: *const c_char) -> c_int;
     pub fn archive_match_include_gname_w(arg1: *mut Struct_archive, arg2: *const wchar_t) -> c_int;
+    pub fn archive_utility_string_sort(arg1: *mut *mut c_char) -> c_int;
     pub fn archive_entry_clear(arg1: *mut Struct_archive_entry) -> *mut Struct_archive_entry;
     pub fn archive_entry_clone(arg1: *mut Struct_archive_entry) -> *mut Struct_archive_entry;
     pub fn archive_entry_free(arg1: *mut Struct_archive_entry) -> ();
@@ -662,8 +682,10 @@ extern "C" {
     pub fn archive_entry_fflags_text(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_gid(arg1: *mut Struct_archive_entry) -> int64_t;
     pub fn archive_entry_gname(arg1: *mut Struct_archive_entry) -> *const c_char;
+    pub fn archive_entry_gname_utf8(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_gname_w(arg1: *mut Struct_archive_entry) -> *const wchar_t;
     pub fn archive_entry_hardlink(arg1: *mut Struct_archive_entry) -> *const c_char;
+    pub fn archive_entry_hardlink_utf8(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_hardlink_w(arg1: *mut Struct_archive_entry) -> *const wchar_t;
     pub fn archive_entry_ino(arg1: *mut Struct_archive_entry) -> int64_t;
     pub fn archive_entry_ino64(arg1: *mut Struct_archive_entry) -> int64_t;
@@ -674,6 +696,7 @@ extern "C" {
     pub fn archive_entry_mtime_is_set(arg1: *mut Struct_archive_entry) -> c_int;
     pub fn archive_entry_nlink(arg1: *mut Struct_archive_entry) -> c_uint;
     pub fn archive_entry_pathname(arg1: *mut Struct_archive_entry) -> *const c_char;
+    pub fn archive_entry_pathname_utf8(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_pathname_w(arg1: *mut Struct_archive_entry) -> *const wchar_t;
     pub fn archive_entry_perm(arg1: *mut Struct_archive_entry) -> mode_t;
     pub fn archive_entry_rdev(arg1: *mut Struct_archive_entry) -> dev_t;
@@ -685,10 +708,15 @@ extern "C" {
     pub fn archive_entry_size_is_set(arg1: *mut Struct_archive_entry) -> c_int;
     pub fn archive_entry_strmode(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_symlink(arg1: *mut Struct_archive_entry) -> *const c_char;
+    pub fn archive_entry_symlink_utf8(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_symlink_w(arg1: *mut Struct_archive_entry) -> *const wchar_t;
     pub fn archive_entry_uid(arg1: *mut Struct_archive_entry) -> int64_t;
     pub fn archive_entry_uname(arg1: *mut Struct_archive_entry) -> *const c_char;
+    pub fn archive_entry_uname_utf8(arg1: *mut Struct_archive_entry) -> *const c_char;
     pub fn archive_entry_uname_w(arg1: *mut Struct_archive_entry) -> *const wchar_t;
+    pub fn archive_entry_is_data_encrypted(arg1: *mut Struct_archive_entry) -> c_int;
+    pub fn archive_entry_is_metadata_encrypted(arg1: *mut Struct_archive_entry) -> c_int;
+    pub fn archive_entry_is_encrypted(arg1: *mut Struct_archive_entry) -> c_int;
     pub fn archive_entry_set_atime(arg1: *mut Struct_archive_entry,
                                    arg2: time_t,
                                    arg3: c_long)
@@ -720,12 +748,14 @@ extern "C" {
                                             -> *const wchar_t;
     pub fn archive_entry_set_gid(arg1: *mut Struct_archive_entry, arg2: int64_t) -> ();
     pub fn archive_entry_set_gname(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
+    pub fn archive_entry_set_gname_utf8(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_gname(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_gname_w(arg1: *mut Struct_archive_entry, arg2: *const wchar_t) -> ();
     pub fn archive_entry_update_gname_utf8(arg1: *mut Struct_archive_entry,
                                            arg2: *const c_char)
                                            -> c_int;
     pub fn archive_entry_set_hardlink(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
+    pub fn archive_entry_set_hardlink_utf8(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_hardlink(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_hardlink_w(arg1: *mut Struct_archive_entry,
                                          arg2: *const wchar_t)
@@ -736,6 +766,7 @@ extern "C" {
     pub fn archive_entry_set_ino(arg1: *mut Struct_archive_entry, arg2: int64_t) -> ();
     pub fn archive_entry_set_ino64(arg1: *mut Struct_archive_entry, arg2: int64_t) -> ();
     pub fn archive_entry_set_link(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
+    pub fn archive_entry_set_link_utf8(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_link(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_link_w(arg1: *mut Struct_archive_entry, arg2: *const wchar_t) -> ();
     pub fn archive_entry_update_link_utf8(arg1: *mut Struct_archive_entry,
@@ -749,6 +780,7 @@ extern "C" {
     pub fn archive_entry_unset_mtime(arg1: *mut Struct_archive_entry) -> ();
     pub fn archive_entry_set_nlink(arg1: *mut Struct_archive_entry, arg2: c_uint) -> ();
     pub fn archive_entry_set_pathname(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
+    pub fn archive_entry_set_pathname_utf8(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_pathname(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_pathname_w(arg1: *mut Struct_archive_entry,
                                          arg2: *const wchar_t)
@@ -769,6 +801,7 @@ extern "C" {
                                            arg2: *const wchar_t)
                                            -> ();
     pub fn archive_entry_set_symlink(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
+    pub fn archive_entry_set_symlink_utf8(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_symlink(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_symlink_w(arg1: *mut Struct_archive_entry,
                                         arg2: *const wchar_t)
@@ -778,11 +811,16 @@ extern "C" {
                                              -> c_int;
     pub fn archive_entry_set_uid(arg1: *mut Struct_archive_entry, arg2: int64_t) -> ();
     pub fn archive_entry_set_uname(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
+    pub fn archive_entry_set_uname_utf8(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_uname(arg1: *mut Struct_archive_entry, arg2: *const c_char) -> ();
     pub fn archive_entry_copy_uname_w(arg1: *mut Struct_archive_entry, arg2: *const wchar_t) -> ();
     pub fn archive_entry_update_uname_utf8(arg1: *mut Struct_archive_entry,
                                            arg2: *const c_char)
                                            -> c_int;
+    pub fn archive_entry_set_is_data_encrypted(arg1: *mut Struct_archive_entry,
+                                               is_encrypted: c_char);
+    pub fn archive_entry_set_is_metadata_encrypted(arg1: *mut Struct_archive_entry,
+                                                   is_encrypted: c_char);
     // pub fn archive_entry_stat(arg1: *mut Struct_archive_entry) -> *const Struct_stat;
     // pub fn archive_entry_copy_stat(arg1: *mut Struct_archive_entry,
     //                                arg2: *const Struct_stat)
