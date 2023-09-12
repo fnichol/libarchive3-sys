@@ -1,5 +1,6 @@
+#![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
-extern crate libc;
 
-pub mod ffi;
+include!("ffi_bindgen.rs");
+include!("ffi_manual.rs");
